@@ -77,7 +77,7 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define cpu_to_be32(x) htonl(x)
 
-unsigned fls(uint32_t x)
+unsigned _fls(uint32_t x)
 {
 	unsigned i;
 	for (i = 32; i != 0; --i)
@@ -279,7 +279,7 @@ static inline int mod_s(struct bch_control *bch, unsigned int v)
 static inline int deg(unsigned int poly)
 {
 	/* polynomial degree is the most-significant bit index */
-	return fls(poly)-1;
+	return _fls(poly)-1;
 }
 
 static inline int parity(unsigned int x)
