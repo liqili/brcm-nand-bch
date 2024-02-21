@@ -24,8 +24,8 @@
 #define SECTORS_PER_PAGE 4
 #define OOB_ECC_OFS 9
 #define OOB_ECC_LEN 7
-#define PAGE_SIZE SECTOR_SZ * SECTORS_PER_PAGE
-#define SPARE_SIZE OOB_SZ * SECTORS_PER_PAGE
+#define PAGE_SIZE SECTOR_SZ *SECTORS_PER_PAGE
+#define SPARE_SIZE OOB_SZ *SECTORS_PER_PAGE
 #define BUFFER_SIZE (SECTOR_SZ + OOB_SZ) * SECTORS_PER_PAGE
 
 // Wide right shift by 4 bits. Preserves the very first 4 bits of the output.
@@ -43,49 +43,54 @@ int main(int argc, char *argv[])
 {
 	unsigned poly = 0;
 	char *input_file_name = NULL;
-    char *output_file_name = NULL;
-    int opt;
+	char *output_file_name = NULL;
+	int opt;
 
-    // Parse command line arguments using getopt
-    while ((opt = getopt(argc, argv, "i:o:p:")) != -1) {
-        switch (opt) {
-            case 'i':
-                input_file_name = optarg;
-                break;
-            case 'o':
-                output_file_name = optarg;
-                break;
-            case 'p':
-                poly = strtoul(optarg, NULL, 0);
-                break;
-            default: /* '?' */
-                fprintf(stderr, "Usage: %s -i <input_file> -o <output_file> -p <polynomial_value>\n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
-    }
+	// Parse command line arguments using getopt
+	while ((opt = getopt(argc, argv, "i:o:p:")) != -1)
+	{
+		switch (opt)
+		{
+		case 'i':
+			input_file_name = optarg;
+			break;
+		case 'o':
+			output_file_name = optarg;
+			break;
+		case 'p':
+			poly = strtoul(optarg, NULL, 0);
+			break;
+		default: /* '?' */
+			fprintf(stderr, "Usage: %s -i <input_file> -o <output_file> -p <polynomial_value>\n", argv[0]);
+			exit(EXIT_FAILURE);
+		}
+	}
 
-    if (input_file_name == NULL || output_file_name == NULL || poly < 0) {
-        fprintf(stderr, "Usage: %s -i <input_file> -o <output_file> -p <polynomial_value>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
+	if (input_file_name == NULL || output_file_name == NULL || poly < 0)
+	{
+		fprintf(stderr, "Usage: %s -i <input_file> -o <output_file> -p <polynomial_value>\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
 
-    FILE *input_file, *output_file;
-    size_t bytes_read;
+	FILE *input_file, *output_file;
+	size_t bytes_read;
 
-    // Open the input binary file for reading
-    input_file = fopen(input_file_name, "rb");
-    if (input_file == NULL) {
-        perror("Error opening input file");
-        exit(EXIT_FAILURE);
-    }
+	// Open the input binary file for reading
+	input_file = fopen(input_file_name, "rb");
+	if (input_file == NULL)
+	{
+		perror("Error opening input file");
+		exit(EXIT_FAILURE);
+	}
 
-    // Open the output binary file for writing
-    output_file = fopen(output_file_name, "wb");
-    if (output_file == NULL) {
-        perror("Error opening output file");
-        fclose(input_file);
-        exit(EXIT_FAILURE);
-    }
+	// Open the output binary file for writing
+	output_file = fopen(output_file_name, "wb");
+	if (output_file == NULL)
+	{
+		perror("Error opening output file");
+		fclose(input_file);
+		exit(EXIT_FAILURE);
+	}
 
 	struct bch_control *bch = init_bch(BCH_N, BCH_T, poly);
 	if (!bch)
@@ -94,7 +99,7 @@ int main(int argc, char *argv[])
 	uint8_t page_buffer[BUFFER_SIZE];
 	while ((bytes_read = fread(page_buffer, 1, PAGE_SIZE, input_file)) > 0)
 	{
-		//init spare are as 0xFF
+		// init spare are as 0xFF
 		memset(page_buffer + PAGE_SIZE, 0xFF, SPARE_SIZE);
 		// Erased pages have ECC = 0xff .. ff even though there may be user bytes in the OOB region
 		int erased_block = 1;
